@@ -1,4 +1,4 @@
-# Musings about modern ham workflows
+# Ham workflows
 
 ## Hound
 
