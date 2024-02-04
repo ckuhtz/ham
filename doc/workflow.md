@@ -4,8 +4,8 @@
 
 ```mermaid
 flowchart LR;
-    Start(Start);
-    Clear(Clear);
+    Start([Start]);
+        Clear([Clear]);
     Start(Start) --> Rig0{Rig status?};
     Rig0 -->|Yes| Rig1[Rig status];
     Rig1 --> QSO0{QSO?};
@@ -25,7 +25,7 @@ flowchart LR;
 
 ```mermaid
 flowchart LR;
-    Start(Rig status);
+    Start([Rig status]);
     Start --> Subscribed0{Subscribed?};
     Subscribed0 -->|Yes| Request0{Request?};
     Subscribed0 -->|No| Subscribed1[Subscribe];
