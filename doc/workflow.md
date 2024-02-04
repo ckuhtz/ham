@@ -4,7 +4,7 @@
 
 ```mermaid
 flowchart TD;
-    A(Start) -->|See station| B{Worked?};
+    A(Start) -->|Find CQ| B{Worked?};
     B -->|Yes| C(End);
     B -->|No| D(Publish QSO target);
 ```
