@@ -3,8 +3,8 @@
 ## Hunt
 
 ```mermaid
-flowchart QSO;
+flowchart TD;
     A(Start) -->|See station| B{Worked?};
     B -->|Yes| C(End);
-    B -->|No| C(Publish QSO target);
+    B -->|No| D(Publish QSO target);
 ```
