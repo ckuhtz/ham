@@ -12,7 +12,7 @@ flowchart TD;
     B1 -->|Yes| C(Clear);
     B1 -->|No| D(Publish QSO target);
     D -->|Capture QSO metadata| E(Log QSO);
-    E -->F(Clear);
+    E --> F(Clear);
 ```
 
 ## Fox
