@@ -1,9 +1,9 @@
 # Ham workflows
 
-Different microservice flows broken down with interactions.  Each workflow publishes a heartbeat when not performing work and after work is successfully completed.  The heartbeat wait interval must be _greater_ than the slowest operation to prevent the heartbeat from going stale.
+Different microservice flows broken down with interactions.  Each workflow publishes a heartbeat when not performing work and after work is successfully completed.  The heartbeat wait dead timer must be _greater_ than the slowest operation to prevent the heartbeat from going stale.  If the service health is bad, _Fox or Hound_ flow is inop.
 
 1. [Fox or Hound](#fox-or-hound)  
-    Calls _Rig status request_, _Query Log reqeust_, _Log QSO request_, and _Publish Heartbeat_
+    Calls _Rig status request_, _Query Log reqeust_, _Log QSO request_, and _Service Health_
 
 2. [Rig status request](#rig-status-request)  
     Calls _Publish Heartbeat_
@@ -16,6 +16,8 @@ Different microservice flows broken down with interactions.  Each workflow publi
 
 5. [Publish Heartbeat](#publish-heartbeat)
 
+6. [Service Health](#service-health)
+    Consumes _Publish Heartbeat_ messages.
 
 
 ## Workflows
