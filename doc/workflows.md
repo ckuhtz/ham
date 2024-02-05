@@ -237,7 +237,9 @@ flowchart LR;
 1. Log QSO.
 2. Updated location.
 
-#### Diagram
+#### Diagrams
+
+**(1)**
 
 ```mermaid
 flowchart LR;
@@ -255,6 +257,7 @@ flowchart LR;
     
 ```
 
+**(2)**
 
 ```mermaid
 flowchart LR;
