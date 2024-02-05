@@ -234,7 +234,8 @@ flowchart LR;
 
 #### Description
 
-fixme.
+1. Log QSO; write.
+2. Updated location.
 
 #### Diagram
 
@@ -258,6 +259,8 @@ flowchart LR;
 ```mermaid
 flowchart LR;
     WSJTXApp([WSJT-X Sender]);
+    Scheduler{Is it time?} -->|Yes| GPSPoll;
+    Scheduler -->|No| Scheduler;
     GPSPoll[Poll GPS for Maidenhead grid locator] -->|11: Location| WSJTXApp;
 ```
 
