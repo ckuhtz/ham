@@ -1,6 +1,18 @@
 # Ham workflows
 
-## Fox or Hound
+Different microservice flows broken down with interactions.
+
+1. [Fox or Hound](#fox-or-hound)
+2. [Rig status request](#rig-status-request)
+3. [Log QSO request](#log-qso-request)
+4. [Query Log request](#query-log-request)
+5. [Publish Heartbeat](#publish-heartbeat)
+
+
+
+## Workflows
+
+### Fox or Hound
 
 ```mermaid
 flowchart LR;
@@ -27,7 +39,9 @@ flowchart LR;
     Clear -->|Loop| Start;
 ```
 
-## Rig status request
+---
+
+### Rig status request
 
 ```mermaid
 flowchart LR;
@@ -46,7 +60,9 @@ flowchart LR;
     Publish0 -->|Loop| Start;    
 ```
 
-## Log QSO request
+---
+
+### Log QSO request
 
 ```mermaid
 flowchart LR;
@@ -63,7 +79,9 @@ flowchart LR;
     Publish0 -->|Loop| Subscribed0;
 ```
 
-## Query Log request
+---
+
+### Query Log request
 
 ```mermaid
 flowchart LR;
@@ -80,7 +98,9 @@ flowchart LR;
     Publish0 -->|Loop| Subscribed0;    
 ```
 
-## Publish heartbeat
+---
+
+### Publish heartbeat
 
 ```mermaid
 flowchart LR;
