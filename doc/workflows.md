@@ -91,18 +91,18 @@ Perform a read or write to rigctld to interact with the rig. Publish a heartbeat
 
 ```mermaid
 flowchart LR;
-    Start([Set rig]);
+    RigOp([Rig request]);
     Request0{Rig op<br>request?}
-    Start --> Subscribed0{Subscribed?};
+    RigOp --> Subscribed0{Subscribed?};
     Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
     Request0 -->|No| Heartbeat0(Heartbeat);
-    Request0 -->|Yes| Write0[rigctld read];
+    Request0 -->|Yes| RigOp0[rigctld op];
     Sleep0 -->|Retry| Subscribed0;
-    Write0 --> Write1{Success?};
-    Write1 -->|Yes| Publish0[Publish rig op status];
-    Write1 -->|No| Heartbeat0;
+    RigOp0 --> RigOp1{Success?};
+    RigOp1 -->|Yes| Publish0[Publish rig op status];
+    RigOp1 -->|No| Heartbeat0;
     Publish0 --> Heartbeat0
     Heartbeat0 -->|Loop| Subscribed0;
 ```
@@ -119,9 +119,9 @@ Perform a log read or write against one or more defined databases. Publish a hea
 
 ```mermaid
 flowchart LR;
-    LogQSO([Log QSO]);
+    LogOp([Log request]);
     Request0{Log<br>request?};
-    LogQSO --> Subscribed0{Subscribed?};
+    LogOp --> Subscribed0{Subscribed?};
     Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
@@ -147,9 +147,10 @@ Perform a call database lookup one or more defined databases. Publish a heartbea
 
 ```mermaid
 flowchart LR;
-    QueryQSO([Query QSO]);
-    QueryQSO --> Subscribed0{Subscribed?};
-    Subscribed0 -->|Yes| Request0{Call<br>request?};
+    CallOp([Call request]);
+    Request0{Log<br>request?};
+    CallOp --> Subscribed0{Subscribed?};
+    Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
     Sleep0 -->|Retry| Subscribed0;
@@ -157,7 +158,7 @@ flowchart LR;
     Request0 -->|No| Heartbeat0(Heartbeat);
     CallOp0 --> CallOp1{Success?};
     CallOp1 -->|No| Heartbeat0;
-    CallOp1 -->|Yes| Publish0[Publish call op];
+    CallOp1 -->|Yes| Publish0[Publish log op];
     Publish0 --> Heartbeat0;
     Heartbeat0 -->|Loop| Subscribed0;
 ```
