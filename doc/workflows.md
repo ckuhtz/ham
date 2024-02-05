@@ -19,6 +19,7 @@ Different microservice flows broken down with interactions.   If the service hea
 6. [Service Health](#service-health)
     Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
 
+---
 
 ## Workflows
 
@@ -215,3 +216,8 @@ flowchart LR;
     Dead0 --> Sleep1;
     Sleep1 -->|Loop| Subscribed0;
 ```
+---
+
+## Notes:
+
+WSJT-X message format: https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
