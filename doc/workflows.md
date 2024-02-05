@@ -19,6 +19,10 @@ Different microservice flows broken down with interactions.   If the service hea
 6. [Service Health](#service-health)
     Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
 
+7. [WSJT-X integration]()
+    Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
+
+
 ---
 
 ## Workflows
@@ -77,9 +81,6 @@ flowchart LR;
     Exit0 -->|No| Subscribed0;
     Exit0 -->|Yes| Exit1;
     Exit1([Exit]);
-    WSJT-X([WSJT-X UDP])
-    WSJT-X --> QSOUI0;
-    WSJT-X --> QSOUI2;
 ```
 
 
@@ -216,6 +217,29 @@ flowchart LR;
     Dead0 --> Sleep1;
     Sleep1 -->|Loop| Subscribed0;
 ```
+---
+
+### WSJT-X Integration
+
+#### Description
+
+fixme.
+
+#### Diagram
+
+```mermaid
+flowchart LR;
+    WSJTXApp([WSJT-X Multicast Receiver]);
+    WSJTXApp -->|5: QSO Logged| LogRequest0([Log QSO]);
+```
+
+
+```mermaid
+flowchart LR;
+    WSJTXApp([WSJT-X Multicast Receiver]);
+    GPSPoll(Poll GPS for Maidenhead grid locator) -->|11: Location| WSJTXApp;
+```
+
 ---
 
 ## Notes:
