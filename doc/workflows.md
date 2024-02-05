@@ -16,11 +16,12 @@ Different microservice flows broken down with interactions.   If the service hea
 
 5. [Publish Heartbeat](#publish-heartbeat)
 
-6. [Service Health](#service-health)
+6. [Service Health](#service-health)  
     Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
 
-7. [WSJT-X integration](#wsjt-x-integration)
+7. [WSJT-X integration](#wsjt-x-integration)  
     Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
+<p>
 
 
 ---
