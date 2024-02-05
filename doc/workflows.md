@@ -1,151 +1,217 @@
 # Ham workflows
 
-Different microservice flows broken down with interactions.  Each workflow publishes a heartbeat when not performing work and after work is successfully completed.  The heartbeat wait dead timer must be _greater_ than the slowest operation to prevent the heartbeat from going stale.  If the service health is bad, _Fox or Hound_ flow is inop.
+Different microservice flows broken down with interactions.   If the service health is bad, _Fox or Hound_ flow is inop.
 
-1. [Fox or Hound](#fox-or-hound)  
-    Calls _Rig status request_, _Query Log reqeust_, _Log QSO request_, and _Service Health_
+1. [Logging UI Loop (Fox or Hound)](#logging-ui-loop-fox-or-hound)  
+    Calls _[Rig request](#rig-request)_, _[Log request](#log-request)_, _[Call request](#call-request)_, and _[Service Health](#service-health)_
 
-2. [Rig status request](#rig-status-request)  
-    Calls _Publish Heartbeat_
+2. [Rig request](#rig-request)  
+    Calls _[Publish Heartbeat](#publish-heartbeat)_
 
-3. [Log QSO request](#log-qso-request)  
-    Calls _Publish Heartbeat_
+3. [Log request](#log-request)  
+    Calls _[Publish Heartbeat](#publish-heartbeat)_
 
-4. [Query Log request](#query-log-request)  
-    Calls _Publish Heartbeat_
+4. [Call request](#call-request)  
+    Calls _[Publish Heartbeat](#publish-heartbeat)_
 
 5. [Publish Heartbeat](#publish-heartbeat)
 
 6. [Service Health](#service-health)
-    Consumes _Publish Heartbeat_ messages.
+    Consumes _[Publish Heartbeat](#publish-heartbeat)_ messages.
 
 
 ## Workflows
 
-### Fox or Hound
+### Logging UI Loop (Fox or Hound)
+
+#### Description
+
+Main UI loop for logging QSOs.  If services are healthy, optional rig status, optional call lookups, and eventually QSO lookups are performed.  Rig control is out of scope.
+
+#### Diagram
 
 ```mermaid
 flowchart LR;
-    Start([Fox or Hound]);
+    Start([Logging UI Loop]);
+    Health0{Service<br>healthy?};
+    Rig0{Rig status<br>integration?}
+    Keyer0{Keyer<br>requested?};
+    QSOUI0{Call<br>available?};
+    QSOUI1{exchange?}
+    QSOUI2{QSO<br>complete?}
+    Lookup0{Call<br>lookup?};
+    Lookup2{Log<br>lookup?};
     Clear([Clear]);
     Start --> Subscribed0{Subscribed?};
     Subscribed0 -->|No| Subscribed1[Subscribe];
-    Subscribed1 --> Sleep0[Sleep];
+    Subscribed0 -->|Yes| Health0;
+    Subscribed1 --> Health0;
+    Health0 -->|No| Sleep0[Sleep];
     Sleep0 -->|Retry| Subscribed0;
-    Wait0 -->|Retry| Subscribed0;    Rig0 -->|Yes| Rig1(Request rig status);
-    Subscribed0 -->|Yes| Health0{Healthy?};
-    Health0 -->|Yes| Rig0{Rig status?};
-    Health0 -->|No| Warn0[Warn op];
-    Warn0 --> Wait0[Wait];
-    Rig1 --> QSO0{QSO?};
-    Rig0 -->|No| QSO0; 
-    QSO0 -->|Yes| Lookup0{Lookup?};
-    QSO0 -->|No| Heartbeat0;
-    Lookup0 -->|Yes| Lookup1(Request Query Log);
-    Lookup1 --> LogQSO0;
-    Lookup0 -->|No| LogQSO0{Log?};
-    LogQSO0 -->|Yes| LogQSO1(Publish Log QSO);
-    LogQSO1 --> Clear;
-    LogQSO0 -->|No| Clear;
-    Clear -->|Loop| Start;
+    Health0 -->|Yes| Rig0;
+    Rig0 -->|Yes| Rig1([Request rig status]);
+    Rig0 -->|No| Keyer0;
+    Rig0 -->|Abandon| Clear;
+    Rig1 --> Keyer0;
+    Keyer0 -->|No| QSOUI0;
+    Keyer0 -->|Yes| Keyer1([Run memory keyer]);
+    Keyer1 --> QSOUI0;
+    QSOUI0 -->|No| Subscribed0;
+    QSOUI0 -->|Yes| Lookup0;
+    QSOUI0 --> |Abandon| Clear;
+    Lookup0 -->|Yes| Lookup1([Call lookup]);
+    Lookup0 -->|No| Lookup2;
+    Lookup1 --> Lookup2;
+    Lookup2 -->|Yes| Lookup3([Log lookup]);
+    Lookup2 -->|No| QSOUI1;
+    Lookup3 --> QSOUI1;
+    QSOUI1 -->|No| QSOUI2;
+    QSOUI1 -->|Yes| Exchange0[capture exch];
+    Exchange0 --> QSOUI2;
+    QSOUI2 -->|UI Loop| QSOUI1;
+    QSOUI2 -->|Yes| LogRequest0([Log QSO]);
+    QSOUI2 -->|Abandon| Clear;
+    LogRequest0 -->|Next QSO| Subscribed0;
+    Clear --> Exit0{Exit?};
+    Exit0 -->|No| Subscribed0;
+    Exit0 -->|Yes| Exit1;
+    Exit1([Exit]);
 ```
+
 
 ---
 
-### Rig status request
+### Rig request
+
+#### Description
+
+Perform a read or write to rigctld to interact with the rig. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
+
+#### Diagram
 
 ```mermaid
 flowchart LR;
-    Start([Rig status]);
+    Start([Set rig]);
+    Request0{Rig op<br>request?}
     Start --> Subscribed0{Subscribed?};
-    Subscribed0 -->|Yes| Request0{Request?};
+    Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
-    Request0 -->|Yes| Read0[rigctld read];
-    Sleep0 -->|Retry| Subscribed0;
     Request0 -->|No| Heartbeat0(Heartbeat);
+    Request0 -->|Yes| Write0[rigctld read];
+    Sleep0 -->|Retry| Subscribed0;
+    Write0 --> Write1{Success?};
+    Write1 -->|Yes| Publish0[Publish rig op status];
+    Write1 -->|No| Heartbeat0;
+    Publish0 --> Heartbeat0
     Heartbeat0 -->|Loop| Subscribed0;
-    Read0 --> Read1{Success?};
-    Read1 -->|Yes| Publish0[Publish rig status];
-    Read1 -->|No| Read0;
-    Publish0 -->|Loop| Start;    
 ```
 
 ---
 
-### Log QSO request
+### Log request
+
+#### Description
+
+Perform a log read or write against one or more defined databases. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
+
+#### Diagram
 
 ```mermaid
 flowchart LR;
     LogQSO([Log QSO]);
+    Request0{Log<br>request?};
     LogQSO --> Subscribed0{Subscribed?};
-    Subscribed0 -->|Yes| Request0{Request?};
+    Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
     Sleep0 -->|Retry| Subscribed0;
-    Request0 -->|Yes| WriteQSO0[Write QSO];
+    Request0 -->|Yes| LogOp0[Log op];
     Request0 -->|No| Heartbeat0(Heartbeat);
+    LogOp0 --> LogOp1{Success?};
+    LogOp1 -->|No| Heartbeat0;
+    LogOp1 -->|Yes| Publish0[Publish log op];
+    Publish0 --> Heartbeat0;
     Heartbeat0 -->|Loop| Subscribed0;
-    WriteQSO0 --> Publish0[Publish Log QSO];
-    Publish0 -->|Loop| Subscribed0;
 ```
 
 ---
 
-### Query Log request
+### Call request
+
+#### Description
+
+Perform a call database lookup one or more defined databases. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
+
+#### Diagram
 
 ```mermaid
 flowchart LR;
     QueryQSO([Query QSO]);
     QueryQSO --> Subscribed0{Subscribed?};
-    Subscribed0 -->|Yes| Request0{Request?};
+    Subscribed0 -->|Yes| Request0{Call<br>request?};
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
     Sleep0 -->|Retry| Subscribed0;
-    Request0 -->|Yes| ReadQSO0[Read QSO];
-    Request0 -->|No| Heartbeat(Heartbeat);
-    Heartbeat -->|Loop| Subscribed0;
-    ReadQSO0 --> Publish0[Publish Read QSO];
-    Publish0 -->|Loop| Subscribed0;    
+    Request0 -->|Yes| CallOp0[Call op];
+    Request0 -->|No| Heartbeat0(Heartbeat);
+    CallOp0 --> CallOp1{Success?};
+    CallOp1 -->|No| Heartbeat0;
+    CallOp1 -->|Yes| Publish0[Publish call op];
+    Publish0 --> Heartbeat0;
+    Heartbeat0 -->|Loop| Subscribed0;
 ```
 
 ---
 
 ### Publish heartbeat
 
+#### Description
+
+Fragment which defines how services publish their heartbeat. Each heartbeat contains the name of the service reporting and once published the fragment is complete.
+
+#### Diagram
+
 ```mermaid
 flowchart LR;
     Heartbeat([Heartbeat]);
+    Exit([Exit])
     Heartbeat --> Subscribed0{Subscribed?};
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
     Sleep0 -->|Retry| Subscribed0;
-    Subscribed0 -->|Yes| Wait0[wait];
-    Wait0 --> Publish0[Publish heartbeat for process];
-    Publish0 -->|Loop| Subscribed0;
-    
+    Subscribed0 -->|Yes| Publish0[Publish heartbeat for process];
+    Publish0 --> Exit;
 ```
 
 ---
 
 ### Service health
 
+#### Description
+
+Each workflow publishes a heartbeat when not performing work and after work is successfully completed. The heartbeat wait dead timer must be _greater_ than the slowest operation to prevent the heartbeat from going stale. As long as all services check in at least once within a specified interval, the service health is alive. Otherwise it is dead.
+
+#### Diagram
+
 ```mermaid
 flowchart LR;
-    Health([Service status])
-    Health --> Subscribed0{Subscribed?};
+    Health([Start]);
+    Health --> ZeroAll[Zero all service counters];
+    ZeroAll --> Subscribed0{Subscribed?};
     Subscribed0 -->|No| Subscribed1[Subscribe];
     Subscribed1 --> Sleep0[Sleep];
-    Sleep0 -->|Retry| Subscribed0;
-    Subscribed0 -->|Yes| Heartbeat0{Heartbeat?};
-    Heartbeat0 -->|Yes| Zero0[Zero service timer];
+    Sleep0 --> Subscribed0;
+    Subscribed0 -->|Yes| Publish0[Publish overall and<br>per service health];
+    Publish0 --> Heartbeat0{Heartbeat<br>available?};
+    Heartbeat0 -->|Yes| Required0{Required?};
+    Required0 -->|Yes| Zero0[Zero service timer];
     Zero0 -->|Check for more heartbeats| Heartbeat0;
     Heartbeat0 -->|No| Watermark0[Record highest service timer];
     Watermark0 --> Watermark1{High<br>watermark<br> reached?};
     Watermark1 --> |No| Alive0[Mark alive];
-    Alive0 --> Publish0;
+    Alive0 --> Sleep1[Sleep];
     Watermark1 --> |Yes| Dead0[Mark dead];
-    Dead0 --> Publish0[Publish overall and<br>per service health];
-    Publish0 --> Wait0[Wait];
-    Wait0 -->|Loop| Subscribed0;
+    Dead0 --> Sleep1;
+    Sleep1 -->|Loop| Subscribed0;
 ```
