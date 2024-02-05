@@ -234,7 +234,7 @@ flowchart LR;
 
 #### Description
 
-1. Log QSO; write.
+1. Log QSO.
 2. Updated location.
 
 #### Diagram
