@@ -257,7 +257,7 @@ flowchart LR;
 
 ```mermaid
 flowchart LR;
-    WSJTXApp([WSJT-X Multicast Receiver]);
+    WSJTXApp([WSJT-X Sender]);
     GPSPoll(Poll GPS for Maidenhead grid locator) -->|11: Location| WSJTXApp;
 ```
 
