@@ -76,6 +76,9 @@ flowchart LR;
     Exit0 -->|No| Subscribed0;
     Exit0 -->|Yes| Exit1;
     Exit1([Exit]);
+    WSJT-X([WSJT-X UDP])
+    WSJT-X --> QSOUI0;
+    WSJT-X --> QSOUI2;
 ```
 
 
@@ -100,9 +103,7 @@ flowchart LR;
     Request0 -->|No| Heartbeat0(Heartbeat);
     Request0 -->|Yes| RigOp0[rigctld op];
     Sleep0 -->|Retry| Subscribed0;
-    RigOp0 --> RigOp1{Success?};
-    RigOp1 -->|Yes| Publish0[Publish rig op status];
-    RigOp1 -->|No| Heartbeat0;
+    RigOp0 --> Publish0[Publish rig op status];
     Publish0 --> Heartbeat0
     Heartbeat0 -->|Loop| Subscribed0;
 ```
@@ -128,9 +129,7 @@ flowchart LR;
     Sleep0 -->|Retry| Subscribed0;
     Request0 -->|Yes| LogOp0[Log op];
     Request0 -->|No| Heartbeat0(Heartbeat);
-    LogOp0 --> LogOp1{Success?};
-    LogOp1 -->|No| Heartbeat0;
-    LogOp1 -->|Yes| Publish0[Publish log op];
+    LogOp0 --> Publish0[Publish log op];
     Publish0 --> Heartbeat0;
     Heartbeat0 -->|Loop| Subscribed0;
 ```
