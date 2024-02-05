@@ -75,7 +75,7 @@ flowchart LR;
     QSOUI1 -->|Yes| Exchange0[capture exch];
     Exchange0 --> QSOUI2;
     QSOUI2 -->|UI Loop| QSOUI1;
-    QSOUI2 -->|Yes| LogRequest0([Log QSO]);
+    QSOUI2 -->|Yes| LogRequest0([Publish log QSO]);
     QSOUI2 -->|Abandon| Clear;
     LogRequest0 -->|Next QSO| Subscribed0;
     Clear --> Exit0{Exit?};
@@ -92,6 +92,8 @@ flowchart LR;
 #### Description
 
 Perform a read or write to rigctld to interact with the rig. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
+
+Read or Write.
 
 #### Diagram
 
@@ -119,6 +121,8 @@ flowchart LR;
 
 Perform a log read or write against one or more defined databases. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
 
+Read or Write.
+
 #### Diagram
 
 ```mermaid
@@ -144,6 +148,8 @@ flowchart LR;
 #### Description
 
 Perform a call database lookup one or more defined databases. Publish a heartbeat. If an operation was performed, the heartbeat indicates success or failure.
+
+Reads only.
 
 #### Diagram
 
@@ -173,6 +179,8 @@ flowchart LR;
 
 Fragment which defines how services publish their heartbeat. Each heartbeat contains the name of the service reporting and once published the fragment is complete.
 
+Writes only.
+
 #### Diagram
 
 ```mermaid
@@ -194,6 +202,8 @@ flowchart LR;
 #### Description
 
 Each workflow publishes a heartbeat when not performing work and after work is successfully completed. The heartbeat wait dead timer must be _greater_ than the slowest operation to prevent the heartbeat from going stale. As long as all services check in at least once within a specified interval, the service health is alive. Otherwise it is dead.
+
+Reads only.
 
 #### Diagram
 
@@ -231,7 +241,17 @@ fixme.
 ```mermaid
 flowchart LR;
     WSJTXApp([WSJT-X Multicast Receiver]);
-    WSJTXApp -->|5: QSO Logged| LogRequest0([Log QSO]);
+    Subscribed0{Subscribed?};
+    LogRequest0([Publish log QSO]);
+    Health0{Service<br>healthy?};
+    WSJTXApp -->|5: QSO Logged| Subscribed0;
+    Subscribed0 -->|No| Subscribed1[Subscribe];
+    Subscribed0 -->|Yes| Health0;
+    Health0 -->|No| Sleep0;
+    Subscribed1 --> Sleep0[Sleep];
+    Sleep0 -->|Retry| Subscribed0;
+    Health0 -->|Yes| LogRequest0;
+    
 ```
 
 
