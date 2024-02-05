@@ -27,7 +27,7 @@ QSO0 -->|Yes| Lookup0{Lookup?};
     Clear --> Start;
 ```
 
-## Rig status
+## Rig status request
 
 ```mermaid
 flowchart LR;
@@ -45,7 +45,7 @@ flowchart LR;
     Publish0 --> Start;    
 ```
 
-## Log QSO
+## Log QSO request
 
 ```mermaid
 flowchart LR;
@@ -61,7 +61,7 @@ flowchart LR;
     Publish0 --> Subscribed0;
 ```
 
-## Query QSO
+## Query QSO request
 
 ```mermaid
 flowchart LR;
