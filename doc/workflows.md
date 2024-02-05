@@ -56,7 +56,7 @@ flowchart LR;
     Keyer0 -->|No| QSOUI0;
     Keyer0 -->|Yes| Keyer1([Run memory keyer]);
     Keyer1 --> QSOUI0;
-    QSOUI0 -->|No| Subscribed0;
+    QSOUI0 -->|UI Loop| Subscribed0;
     QSOUI0 -->|Yes| Lookup0;
     QSOUI0 --> |Abandon| Clear;
     Lookup0 -->|Yes| Lookup1([Call lookup]);
