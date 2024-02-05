@@ -92,7 +92,7 @@ Perform a read or write to rigctld to interact with the rig. Publish a heartbeat
 ```mermaid
 flowchart LR;
     RigOp([Rig request]);
-    Request0{Rig op<br>request?}
+    Request0{Rig<br>request?}
     RigOp --> Subscribed0{Subscribed?};
     Subscribed0 -->|Yes| Request0;
     Subscribed0 -->|No| Subscribed1[Subscribe];
