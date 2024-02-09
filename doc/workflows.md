@@ -1,6 +1,6 @@
 # Ham workflows
 
-Different microservice flows broken down with interactions.   If the service health is bad, _Fox or Hound_ flow is inop.
+I wrote this document to capture how ham radio operator workflows can be broken down into different microservice flows with interactions.   This also includes the notion of service health being integral to the system to prevent scenarios where something is inop and you don't find out until after the fact that information didn't get captured as you thought it would.  If the service health is bad, _Fox or Hound_ flow is inop.
 
 1. [Logging UI Loop (Fox or Hound)](#logging-ui-loop-fox-or-hound)  
     Calls _[Rig request](#rig-request)_, _[Log request](#log-request)_, _[Call request](#call-request)_, and _[Service Health](#service-health)_
