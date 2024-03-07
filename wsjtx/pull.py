@@ -28,7 +28,7 @@ debug = True
 
 def decode_utf8_str(stream):
     len = stream.readUInt32()
-    if len == 0xffffffff: # null string
+    if len == 0xffffffff: # null string is mashed into an empty string
         return ""
     else:
         bytes = stream.readRawData(len)
@@ -41,7 +41,12 @@ def decode_qtime_iso8601str(stream):
     utcmidnight = datetime.datetime(utcnow.year, utcnow.month, utcnow.day, 0, 0)
     msecs_since_midnight = stream.readUInt32()
     timestamp = utcmidnight + datetime.timedelta(milliseconds=msecs_since_midnight)
-    return timestamp.isoformat() + 'Z'
+    iso8601_timestamp = timestamp.isoformat() + 'Z'
+    
+    if debug:
+        print("iso8601_timestamp:", iso8601_timestamp)
+
+    return iso8601_timestamp
 
 # decode qdatetime into an ISO8601 timestamp string
 
@@ -64,16 +69,18 @@ def decode_qdatetime_iso8601str(stream):
     # Instead, we recreate the date with starting point at midnight and add milliseconds to it.  This is safe
     # because julian_days will always be an integer and never fractions of a day.
     combined_datetime = datetime.datetime(gregorian_datetime.year, gregorian_datetime.month, gregorian_datetime.day,0,0) + datetime.timedelta(milliseconds=msecs_since_midnight)
-        
+    iso8601_datetime = combined_datetime.isoformat() + 'Z'
+
     if debug:
         print("julian_days:", julian_days)
         print("msecs_since_midnight:", msecs_since_midnight)
         print("timespec:", timespec)
         print("gregorian_datetime:", gregorian_datetime)
         print("combined_datetime:", combined_datetime)
-        print("combined_datetime.isoformat()Z:", combined_datetime.isoformat() + 'Z')
+        print("combined_datetime.isoformat()Z:", iso8601_datetime)
+        print("iso8601_datetime", iso8601_datetime)
     
-    return combined_datetime.isoformat() + 'Z'
+    return iso8601_datetime
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
 
