@@ -1,0 +1,1 @@
+Decodes multicast sent from WSJT-X to 224.0.0.1 2237/udp and dumps decoded info with hexdump onto console.
