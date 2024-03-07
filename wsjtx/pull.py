@@ -3,9 +3,11 @@
 # 3. ignore everything that isn't emitted by WSJT-X (although debug will show that
 #    it has been seen on the wire)
 #
-# Format description:
+# format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
-# based on QT QtDatastream.
+# based on QtDatastream from the Qt framework.
+#
+# dependencies:
 # if using PySide6, pip install pyside6
 # if using PyQt5, sudo apt install qtbase5-dev; pip install pyqt5
 # install hexdump with pip install simple-hexdump
