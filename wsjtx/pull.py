@@ -5,7 +5,7 @@
 #
 # format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
-# based on QtDatastream from the Qt framework.
+# based on QDatastream from the Qt framework.
 #
 # dependencies:
 # if using PySide6, pip install pyside6
