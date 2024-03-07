@@ -34,7 +34,7 @@ def decode_utf8_str(stream):
         bytes = stream.readRawData(len)
         return bytes.decode("utf-8)")
 
-# decode qtime (milliseconds since midnight UTC) into an ISO8601 timestamp string
+# decode qtime (milliseconds since midnight UTC) into an ISO 8601 timestamp string
 
 def decode_qtime_iso8601str(stream):
     utcnow = datetime.datetime.now(datetime.UTC)
@@ -48,7 +48,7 @@ def decode_qtime_iso8601str(stream):
 
     return iso8601_timestamp
 
-# decode qdatetime into an ISO8601 timestamp string
+# decode qdatetime into an ISO 8601 timestamp string
 
 def decode_qdatetime_iso8601str(stream):
     julian_days = stream.readInt64() # QDate
