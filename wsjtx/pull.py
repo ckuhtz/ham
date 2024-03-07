@@ -168,7 +168,7 @@ while True:
                     print("mode:", mode)
                     print("dx_call:", dx_call)
                     print("report:", report)
-                    print("tx_mode", tx_mode)
+                    print("tx_mode:", tx_mode)
                     print("tx_enabled:", tx_enabled)
                     print("transmitting:", transmitting)
                     print("decoding:", decoding)
