@@ -119,6 +119,10 @@ while True:
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
 
         message_type = stream.readUInt32()
+
+        # FIXME placeholder
+        # https://github.com/ckuhtz/ham/issues/3
+
         id = decode_utf8_str(stream)
         match message_type:
             case 0: 
