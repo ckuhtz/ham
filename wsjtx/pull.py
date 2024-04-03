@@ -120,10 +120,6 @@ while True:
 
         message_type = stream.readUInt32()
         id = decode_utf8_str(stream)
-        if debug:
-            print("id:", id)
-            print("message_type: {message_type} ".format(message_type=message_type), end="")
-       
         match message_type:
             case 0: 
                 # Heartbeat message from WSJT-X (discovery and schema negotiation)
@@ -163,6 +159,8 @@ while True:
                 config_name = decode_utf8_str(stream)
                 tx_message = decode_utf8_str(stream)
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(status)")
                     print("dial_freq:", dial_freq)
                     print("mode:", mode)
@@ -229,6 +227,8 @@ while True:
                 off_air = stream.readBool()
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(decode)")
                     print("new:", new)
                     print("time:", time)
@@ -246,6 +246,8 @@ while True:
                 window = stream.readUInt8()
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(clear)")
                     print("window:", window)
 
@@ -254,6 +256,8 @@ while True:
                 # In
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(reply)")
 
                 # ignored
@@ -278,6 +282,8 @@ while True:
                 adif_prop_mode = decode_utf8_str(stream)
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(qso logged)")
                     print("datetime_off:", datetime_off)
                     print("dx_call:", dx_call)
@@ -301,12 +307,16 @@ while True:
                 # WSJT-X shutting down
                 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(close)")
 
             case 7:
                 # Replay previous band decodes from WSJT-X
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(replay)")
 
                 # ignored
@@ -316,6 +326,8 @@ while True:
                 # In
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(halt tx)")
                 
                 # ignored
@@ -325,6 +337,8 @@ while True:
                 # In
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(freetext)")
                 
                 # ignored
@@ -334,6 +348,8 @@ while True:
                 # Out
                 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(WSPR decode)")
                 
                 # ignored
@@ -343,6 +359,8 @@ while True:
                 # In
                 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(location update)")
                 
                 # ignored
@@ -353,6 +371,8 @@ while True:
                 adif = decode_utf8_str(stream)
                 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(logged ADIF)")
                     print("adif:", adif)
 
@@ -361,6 +381,8 @@ while True:
                 # In
                 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(callsign highlight)")
                 
                 # ignored
@@ -370,6 +392,8 @@ while True:
                 # In
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(switch configuration)")
                 
                 # ignored
@@ -379,6 +403,8 @@ while True:
                 # In
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(configure)")
 
                 # ignored
