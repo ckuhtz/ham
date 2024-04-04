@@ -1,7 +1,8 @@
-# 1. receive multicast messages from WSJT-X
+# 1. receive multicast messages from WSJT-X (and anything that looks like it on the same group)
 # 2. decode messages from QTDatastream and map the fields
 # 3. ignore everything that isn't emitted by WSJT-X (although debug will show that
 #    it has been seen on the wire)
+# 4. emit to pubsub topic node/component/message_type
 #
 # format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
@@ -16,8 +17,8 @@
 import socket
 import struct
 import sys
-#from PyQt5.QtCore import QByteArray, QDataStream, QIODevice
 from PySide6.QtCore import QByteArray, QDataStream, QIODevice
+#from PyQt5.QtCore import QByteArray, QDataStream, QIODevice
 from hexdump import hexdump
 import datetime
 import juliandate as jd
