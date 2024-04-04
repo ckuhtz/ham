@@ -1,6 +1,7 @@
-# 1. receive multicast messages from WSJT-X (and anything that looks like it on the same group)
+# 1. receive multicast messages from WSJT-X
 # 2. decode messages from QTDatastream and map the fields
-# 
+# 3. ignore everything that isn't emitted by WSJT-X (although debug will show that
+#    it has been seen on the wire)
 #
 # format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
