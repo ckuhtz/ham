@@ -134,6 +134,8 @@ while True:
                 revision = decode_utf8_str(stream)
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(heartbeat)")
                     print("max_schema:", max_schema)
                     print ("version/revision: {version}/{revision}".format(version=version,revision=revision))
