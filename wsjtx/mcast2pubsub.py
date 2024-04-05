@@ -108,9 +108,13 @@ mreq = socket.inet_aton(mcast_group) + socket.inet_aton("0.0.0.0")
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 while True:
+    # amqp_message is the object that is published to AMQP
+    # it is reset to undefined here, and every message type that does publish a producer
+    # message will provide its own message.  If undefined type is published, we know we hit
+    # an area of the code that should be evaluated for more work.
 
     amqp_message = { 'type': 'undefined' }
-        
+
     data, addr = sock.recvfrom(10240)
     
     if debug:
