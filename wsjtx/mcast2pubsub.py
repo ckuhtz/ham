@@ -13,6 +13,8 @@
 # if using PyQt5, sudo apt install qtbase5-dev; pip install pyqt5
 # install hexdump with pip install simple-hexdump
 # install juliandate with pip install juliandate
+# install kombu for AMQP messaging
+# install librabbitmq for high perf transport (optional)
 
 import socket
 import struct
@@ -22,8 +24,10 @@ from PySide6.QtCore import QByteArray, QDataStream, QIODevice
 from hexdump import hexdump
 import datetime
 import juliandate as jd
+from kombu import Connection, Exchange, Queue
 
 debug = True
+amqp_host = "amqp://admin:admin@docker.local//"
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
 
@@ -83,6 +87,14 @@ def decode_qdatetime_iso8601str(stream):
     
     return iso8601_datetime
 
+# set up AMQP producer
+
+amqp_connection = Connection(amqp_host)
+amqp_producer = amqp_connection.Producer(
+    auto_declare = True
+)
+amqp_exchange = Exchange('wsjtx', type='direct')
+
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
 
 mcast_group = '224.0.0.1'
@@ -96,6 +108,9 @@ mreq = socket.inet_aton(mcast_group) + socket.inet_aton("0.0.0.0")
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 while True:
+
+    amqp_message = { 'type': 'undefined' }
+        
     data, addr = sock.recvfrom(10240)
     
     if debug:
@@ -121,7 +136,7 @@ while True:
 
         message_type = stream.readUInt32()
 
-        # FIXME placeholder
+        # FIXME
         # https://github.com/ckuhtz/ham/issues/3
 
         id = decode_utf8_str(stream)
@@ -420,6 +435,15 @@ while True:
                 print()
                 raise Exception("unknown message type " + str(id) + " received.")
 
+        # publish message to AMQP
+            
+        amqp_producer.publish(
+            amqp_message,
+            exchange=amqp_exchange,
+            routing_key='rk',
+            retry=False
+        )
+        
     except Exception as e:
         print("Error decoding WSJT-X data:", str(e))
     
