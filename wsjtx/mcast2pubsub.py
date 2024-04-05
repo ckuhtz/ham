@@ -106,7 +106,7 @@ except Exception as e:
     print("AMQP problem:", str(e))
 
 if debug:
-    print("AMQP prep done. (maybe?)")
+    print("AMQP prep done. (maybe? see https://github.com/ckuhtz/ham/issues/5)")
     print()
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
