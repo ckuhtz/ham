@@ -29,6 +29,8 @@ from kombu import Connection, Exchange, Queue
 # constants
 
 debug = True
+debug_only_message_type = -1 # ignore specific message, all messages
+debug_only_message_type = 0 # specific message only
 amqp_host = "amqp://admin:admin@docker.local/"
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
@@ -95,7 +97,7 @@ amqp_connection = Connection(amqp_host)
 amqp_producer = amqp_connection.Producer(
     auto_declare = True
 )
-amqp_exchange = Exchange('wsjtx', type='direct')
+amqp_exchange = Exchange('wsjtx', type='fanout')
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
 
@@ -155,7 +157,7 @@ while True:
                 version = decode_utf8_str(stream)
                 revision = decode_utf8_str(stream)
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(heartbeat)")
@@ -186,7 +188,7 @@ while True:
                 tr_period = stream.readUInt32()
                 config_name = decode_utf8_str(stream)
                 tx_message = decode_utf8_str(stream)
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(status)")
@@ -254,7 +256,7 @@ while True:
                 low_conf = stream.readBool()
                 off_air = stream.readBool()
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(decode)")
@@ -273,7 +275,7 @@ while True:
                 # Out/In
                 window = stream.readUInt8()
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(clear)")
@@ -283,7 +285,7 @@ while True:
                 # Inbound control message to WSJT-X only
                 # In
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(reply)")
@@ -309,7 +311,7 @@ while True:
                 exch_rcvd = decode_utf8_str(stream)
                 adif_prop_mode = decode_utf8_str(stream)
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(qso logged)")
@@ -334,7 +336,7 @@ while True:
             case 6:
                 # WSJT-X shutting down
                 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(close)")
@@ -342,7 +344,7 @@ while True:
             case 7:
                 # Replay previous band decodes from WSJT-X
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(replay)")
@@ -353,7 +355,7 @@ while True:
                 # Halt transmissions in WSJT-X
                 # In
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(halt tx)")
@@ -364,7 +366,7 @@ while True:
                 # Set free text message in WSJT-X
                 # In
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(freetext)")
@@ -375,7 +377,7 @@ while True:
                 # WSPR decode receive from WSJT-X
                 # Out
                 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(WSPR decode)")
@@ -386,7 +388,7 @@ while True:
                 # Location update for WSJT-X
                 # In
                 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(location update)")
@@ -398,7 +400,7 @@ while True:
                 # Out
                 adif = decode_utf8_str(stream)
                 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(logged ADIF)")
@@ -408,7 +410,7 @@ while True:
                 # Highlight call sign in WSJT-X
                 # In
                 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(callsign highlight)")
@@ -419,7 +421,7 @@ while True:
                 # Switch WSJT-X configuration
                 # In
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(switch configuration)")
@@ -430,7 +432,7 @@ while True:
                 # Configure WSJT-X
                 # In
 
-                if debug:
+                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
                     print("id:", id)
                     print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(configure)")
@@ -441,17 +443,19 @@ while True:
                 print()
                 raise Exception("unknown message type " + str(id) + " received.")
 
-        # publish message to AMQP
-            
-        amqp_producer.publish(
-            amqp_message,
-            exchange=amqp_exchange,
-            routing_key='rk',
-            retry=False
-        )
-        
     except Exception as e:
         print("Error decoding WSJT-X data:", str(e))
+        
+    # publish message to AMQP
+        
+    amqp_producer.publish(
+        amqp_message,
+        exchange=amqp_exchange,
+        routing_key='rk',
+        retry=False
+    )
     
+    # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
+
     if debug:
         print()
