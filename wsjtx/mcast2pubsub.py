@@ -93,11 +93,14 @@ def decode_qdatetime_iso8601str(stream):
 
 # set up AMQP producer
 
-amqp_connection = Connection(amqp_host)
-amqp_producer = amqp_connection.Producer(
-    auto_declare = True
-)
-amqp_exchange = Exchange('wsjtx', type='fanout')
+try:
+    amqp_connection = Connection(amqp_host)
+    amqp_producer = amqp_connection.Producer(
+        auto_declare = True
+    )
+    amqp_exchange = Exchange('wsjtx', type='direct')
+except Exception as e:
+    print("AMQP problem:", str(e))
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
 
