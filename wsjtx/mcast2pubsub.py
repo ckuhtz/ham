@@ -121,10 +121,6 @@ while True:
 
     data, addr = sock.recvfrom(10240)
     
-    if debug:
-        print(hexdump(data))
-        print("source:",format(addr))
-    
     buffer = QByteArray(data)
     stream = QDataStream(buffer)
     stream.setByteOrder(QDataStream.BigEndian)
@@ -143,7 +139,11 @@ while True:
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
 
         message_type = stream.readUInt32()
-
+        
+        if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+            print(hexdump(data))
+            print("source:",format(addr))
+    
         # FIXME
         # https://github.com/ckuhtz/ham/issues/3
 
