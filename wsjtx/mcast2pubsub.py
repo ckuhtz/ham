@@ -26,8 +26,10 @@ import datetime
 import juliandate as jd
 from kombu import Connection, Exchange, Queue
 
+# constants
+
 debug = True
-amqp_host = "amqp://admin:admin@docker.local//"
+amqp_host = "amqp://admin:admin@docker.local/"
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
 
