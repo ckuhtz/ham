@@ -139,7 +139,7 @@ while True:
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
 
         message_type = stream.readUInt32()
-        
+
         if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
             print(hexdump(data))
             print("source:",format(addr))
@@ -448,14 +448,14 @@ while True:
         
     # publish message to AMQP
         
-    amqp_producer.publish(
-        amqp_message,
-        exchange=amqp_exchange,
-        routing_key='rk',
-        retry=False
-    )
+    # amqp_producer.publish(
+    #     amqp_message,
+    #     exchange=amqp_exchange,
+    #     routing_key='rk',
+    #     retry=False
+    # )
     
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
-    if debug:
+    if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
         print()
