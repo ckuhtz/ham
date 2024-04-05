@@ -129,14 +129,21 @@ while True:
         # check magic number match
         magic = stream.readUInt32()
         if magic != 0xadbccbda:
+            if debug:
+                print(hexdump(data))
+                print("source:",format(addr))
             raise Exception("bad magic number (" + str(magic) + ")")
         
         # check schema number match
         schema = stream.readUInt32()
         if schema != 2:
+            if debug:
+                print(hexdump(data))
+                print("source:",format(addr))
             raise Exception("unsupported schema (" + str(schema) + ")")
 
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
+        # or something that's acting like it
 
         message_type = stream.readUInt32()
 
