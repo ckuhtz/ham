@@ -93,6 +93,9 @@ def decode_qdatetime_iso8601str(stream):
 
 # set up AMQP producer
 
+# FIXME
+# https://github.com/ckuhtz/ham/issues/5
+
 try:
     amqp_connection = Connection(amqp_host)
     amqp_producer = amqp_connection.Producer(
@@ -104,6 +107,7 @@ except Exception as e:
 
 if debug:
     print("AMQP prep done. (maybe?)")
+    print()
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
 
