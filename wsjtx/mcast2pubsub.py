@@ -24,14 +24,15 @@ from PySide6.QtCore import QByteArray, QDataStream, QIODevice
 from hexdump import hexdump
 import datetime
 import juliandate as jd
-from kombu import Connection, Exchange, Queue
+from kombu import Connection, Exchange, Producer
 
 # constants
 
 debug = True
 debug_only_message_type = -1 # ignore specific message, all messages
-debug_only_message_type = 0 # specific message only
-amqp_host = "amqp://admin:admin@docker.local/"
+debug_only_message_type = 0 # specific message only, cut down on the noise
+
+amqp_url = "amqp://admin:admin@docker:5672/"
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
 
@@ -97,16 +98,27 @@ def decode_qdatetime_iso8601str(stream):
 # https://github.com/ckuhtz/ham/issues/5
 
 try:
-    amqp_connection = Connection(amqp_host)
-    amqp_producer = amqp_connection.Producer(
-        auto_declare = True
+    amqp_connection = Connection(amqp_url)
+    if debug:
+        print("AMQP URL:", amqp_url)
+    amqp_channel = amqp_connection.channel()
+    amqp_exchange_name = "wsjtx"
+    amqp_exchange = Exchange(amqp_exchange_name, type='direct')
+    if debug:
+        print("AMQP exchange:", amqp_exchange_name)
+    amqp_routing_key = "wsjtx-out"
+    amqp_producer = Producer(
+        exchange=amqp_exchange,
+        channel=amqp_channel,
+        routing_key=amqp_routing_key
     )
-    amqp_exchange = Exchange('wsjtx', type='direct')
+    if debug:
+        print("AMQP routing key:", amqp_routing_key)
 except Exception as e:
-    print("AMQP problem:", str(e))
+    print("AMQP init problem:", str(e))
 
 if debug:
-    print("AMQP prep done. (maybe? see https://github.com/ckuhtz/ham/issues/5)")
+    print("AMQP init done. (maybe? see https://github.com/ckuhtz/ham/issues/5)")
     print()
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
