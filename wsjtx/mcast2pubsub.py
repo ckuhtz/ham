@@ -53,7 +53,7 @@ def decode_qtime_iso8601str(stream):
     timestamp = utcmidnight + datetime.timedelta(milliseconds=msecs_since_midnight)
     iso8601_timestamp = timestamp.isoformat() + 'Z'
     
-    if debug:
+    if (debug and debug_only_message_type == -1):
         print("iso8601_timestamp:", iso8601_timestamp)
 
     return iso8601_timestamp
@@ -81,7 +81,7 @@ def decode_qdatetime_iso8601str(stream):
     combined_datetime = datetime.datetime(gregorian_datetime.year, gregorian_datetime.month, gregorian_datetime.day,0,0) + datetime.timedelta(milliseconds=msecs_since_midnight)
     iso8601_datetime = combined_datetime.isoformat() + 'Z'
 
-    if debug:
+    if (debug and debug_only_message_type == -1):
         print("julian_days:", julian_days)
         print("msecs_since_midnight:", msecs_since_midnight)
         print("timespec:", timespec)
