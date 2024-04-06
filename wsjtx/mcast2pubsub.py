@@ -477,12 +477,10 @@ while True:
         
     # publish message to AMQP
         
-    # amqp_producer.publish(
-    #     amqp_message,
-    #     exchange=amqp_exchange,
-    #     routing_key='rk',
-    #     retry=False
-    # )
+    amqp_producer.publish(
+        "hi!",
+        retry=False
+    )
     
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
