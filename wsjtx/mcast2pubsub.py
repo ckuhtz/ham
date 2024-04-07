@@ -609,8 +609,7 @@ while True:
         retry=False
     )
     if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
-        print("AMQP published ({})".format(wsjtx_message_type))
-        print(">>", amqp_message)
+        print("AMQP <<", amqp_message)
 
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
