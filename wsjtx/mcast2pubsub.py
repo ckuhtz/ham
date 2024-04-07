@@ -481,7 +481,10 @@ while True:
         "hi!",
         retry=False
     )
-    
+    if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+        print("AMQP published ({})".format(message_type))
+        print(">>", amqp_message)
+
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
     if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
