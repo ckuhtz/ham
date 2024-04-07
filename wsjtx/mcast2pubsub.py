@@ -419,6 +419,25 @@ while True:
                     print("(clear)")
                     print("window:", window)
 
+                amqp_message = {
+                    "wsjtx": {
+                        "type": wsjtx_message_type,
+                        "name": "clear",
+                        "id": wsjtx_id,
+                    },
+                    "ip": {
+                        "source": {
+                            "ip": addr[0],
+                            "port": addr[1]
+                        },
+                        "destination": {
+                            "ip": mcast_group,
+                            "port": mcast_port
+                        }
+                    },
+                    "window": window
+               }
+
             case 4: 
                 # Inbound control message to WSJT-X only
                 # In
