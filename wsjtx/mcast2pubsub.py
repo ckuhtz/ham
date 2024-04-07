@@ -2,7 +2,7 @@
 # 2. decode messages from QTDatastream and map the fields
 # 3. ignore everything that isn't emitted by WSJT-X (although debug will show that
 #    it has been seen on the wire)
-# 4. emit to pubsub topic node/component/message_type
+# 4. emit to pubsub topic node/component/wsjtx_message_type
 #
 # format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
@@ -30,8 +30,8 @@ import json
 # constants
 
 debug = True
-debug_only_message_type = -1 # ignore specific message, all messages
-debug_only_message_type = 0 # specific message only, cut down on the noise
+debug_only_wsjtx_message_type = -1 # ignore specific message, all messages
+#debug_only_wsjtx_message_type = 0 # specific message only, cut down on the noise
 
 amqp_url = "amqp://admin:admin@docker:5672/"
 
@@ -57,7 +57,7 @@ def decode_qtime_iso8601str(stream):
     timestamp = utcmidnight + datetime.timedelta(milliseconds=msecs_since_midnight)
     iso8601_timestamp = timestamp.isoformat() + 'Z'
     
-    if (debug and debug_only_message_type == -1):
+    if (debug and debug_only_wsjtx_message_type == -1):
         print("iso8601_timestamp:", iso8601_timestamp)
 
     return iso8601_timestamp
@@ -85,7 +85,7 @@ def decode_qdatetime_iso8601str(stream):
     combined_datetime = datetime.datetime(gregorian_datetime.year, gregorian_datetime.month, gregorian_datetime.day,0,0) + datetime.timedelta(milliseconds=msecs_since_midnight)
     iso8601_datetime = combined_datetime.isoformat() + 'Z'
 
-    if (debug and debug_only_message_type == -1):
+    if (debug and debug_only_wsjtx_message_type == -1):
         print("julian_days:", julian_days)
         print("msecs_since_midnight:", msecs_since_midnight)
         print("timespec:", timespec)
@@ -170,9 +170,9 @@ while True:
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
         # or something that's acting like it
 
-        message_type = stream.readUInt32()
+        wsjtx_message_type = stream.readUInt32()
 
-        if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+        if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
             print(hexdump(data))
             print("source:",format(addr))
     
@@ -183,7 +183,7 @@ while True:
 
         # process message types
 
-        match message_type:
+        match wsjtx_message_type:
             case 0: 
                 # Heartbeat message from WSJT-X (discovery and schema negotiation)
                 # It appears schema negotation is optional?
@@ -192,16 +192,16 @@ while True:
                 wsjtx_version = decode_utf8_str(stream)
                 wsjtx_revision = decode_utf8_str(stream)
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(heartbeat)")
-                    print("max_schema:", wsjtx_max_schema)
-                    print ("version/revision: {version}/{revision}".format(version=wsjtx_version,revision=wsjtx_revision))
+                    print("wsjtx_max_schema:", wsjtx_max_schema)
+                    print ("wsjtx_version/revision: {wsjtx_version}/{wsjtx_revision}".format(wsjtx_version=wsjtx_version,wsjtx_revision=wsjtx_revision))
 
                 amqp_message = {
                     "wsjtx": {
-                        "type": message_type,
+                        "type": wsjtx_message_type,
                         "name": "heartbeat",
                         "id": wsjtx_id,
                         "version": wsjtx_version,
@@ -244,9 +244,9 @@ while True:
                 tr_period = stream.readUInt32()
                 config_name = decode_utf8_str(stream)
                 tx_message = decode_utf8_str(stream)
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(status)")
                     print("dial_freq:", dial_freq)
                     print("mode:", mode)
@@ -267,25 +267,26 @@ while True:
                     print("spec_op_mode: {} ".format(spec_op_mode), end="")
                     match spec_op_mode:
                         case 0:
-                            print("(none)")
+                            spec_op_mode_name = "none"
                         case 1:
-                            print("(NA VHF)")
+                            spec_op_mode_name = "NA VHF"
                         case 2:
-                            print("(EU VHF)")
+                            spec_op_mode_name = "EU VHF"
                         case 3:
-                            print("(FIELD DAY)")
+                            spec_op_mode_name = "FIELD DAY"
                         case 4:
-                            print("(RTTY RU)")
+                            spec_op_mode_name = "RTTY RU"
                         case 5:
-                            print("(WW DIGI)")
+                            spec_op_mode_name = "WW DIGI"
                         case 6:
-                            print("(FOX)")
+                            spec_op_mode_name = "FOX"
                         case 7:
-                            print("(HOUND)")
+                            spec_op_mode_name = "HOUND"
                         case 8:
-                            print("(ARRL DIGI)")
+                            spec_op_mode_name = "ARRL DIGI"
                         case _:
-                            print("(wtf?)")
+                            spec_op_mode_name = "wtf?"
+                    print("(" + spec_op_mode_name + ")")
                     print("freq_tolerance:", freq_tolerance, end="")
                     if freq_tolerance == 4294967295:
                         print(" (not applicable)")
@@ -298,6 +299,59 @@ while True:
                         print()
                     print("config_name:", config_name)
                     print("tx_message:",tx_message)
+
+                amqp_message = {
+                    "wsjtx": {
+                        "type": wsjtx_message_type,
+                        "name": "status",
+                        "id": wsjtx_id,
+                        "config_name": config_name
+                    },
+                    "ip": {
+                        "source": {
+                            "ip": addr[0],
+                            "port": addr[1]
+                        },
+                        "destination": {
+                            "ip": mcast_group,
+                            "port": mcast_port
+                        }
+                    },
+                    "qso": {
+                        "dial_freq": dial_freq,
+                        "mode": {
+                            "rx": mode,
+                            "tx": tx_mode,
+                            "sub_mode": sub_mode,
+                            "fast_mode": fast_mode,
+                            "spec_op": {
+                                "mode": spec_op_mode,
+                                "name": spec_op_mode_name
+                            },
+                            "freq_tolerance": freq_tolerance,
+                            "tr_period": tr_period
+                        },
+                        "df": {
+                            "rx": rx_df,
+                            "tx": tx_df
+                        },
+                        "de": {
+                            "call": de_call,
+                            "grid": de_grid
+                        },
+                        "dx": {
+                            "call": dx_call,
+                            "grid": dx_grid
+                        },                        
+                        "report": report
+                    },
+                    "status": {
+                        "tx_enabled": tx_enabled,
+                        "transmitting": transmitting,
+                        "decoding": decoding,
+                        "tx_watchdog": tx_watchdog
+                    }
+                }
 
             case 2: 
                 # WSJT-X has decoded a message
@@ -312,9 +366,9 @@ while True:
                 low_conf = stream.readBool()
                 off_air = stream.readBool()
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(decode)")
                     print("new:", new)
                     print("time:", time)
@@ -331,9 +385,9 @@ while True:
                 # Out/In
                 window = stream.readUInt8()
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(clear)")
                     print("window:", window)
 
@@ -341,9 +395,9 @@ while True:
                 # Inbound control message to WSJT-X only
                 # In
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(reply)")
 
                 # ignored
@@ -367,9 +421,9 @@ while True:
                 exch_rcvd = decode_utf8_str(stream)
                 adif_prop_mode = decode_utf8_str(stream)
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(qso logged)")
                     print("datetime_off:", datetime_off)
                     print("dx_call:", dx_call)
@@ -392,17 +446,17 @@ while True:
             case 6:
                 # WSJT-X shutting down
                 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(close)")
 
             case 7:
                 # Replay previous band decodes from WSJT-X
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(replay)")
 
                 # ignored
@@ -411,9 +465,9 @@ while True:
                 # Halt transmissions in WSJT-X
                 # In
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(halt tx)")
                 
                 # ignored
@@ -422,9 +476,9 @@ while True:
                 # Set free text message in WSJT-X
                 # In
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(freetext)")
                 
                 # ignored
@@ -433,9 +487,9 @@ while True:
                 # WSPR decode receive from WSJT-X
                 # Out
                 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(WSPR decode)")
                 
                 # ignored
@@ -444,9 +498,9 @@ while True:
                 # Location update for WSJT-X
                 # In
                 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(location update)")
                 
                 # ignored
@@ -456,9 +510,9 @@ while True:
                 # Out
                 adif = decode_utf8_str(stream)
                 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(logged ADIF)")
                     print("adif:", adif)
 
@@ -466,9 +520,9 @@ while True:
                 # Highlight call sign in WSJT-X
                 # In
                 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(callsign highlight)")
                 
                 # ignored
@@ -477,9 +531,9 @@ while True:
                 # Switch WSJT-X configuration
                 # In
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(switch configuration)")
                 
                 # ignored
@@ -488,9 +542,9 @@ while True:
                 # Configure WSJT-X
                 # In
 
-                if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+                if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                     print("wsjtx_id:", wsjtx_id)
-                    print("message_type: {message_type} ".format(message_type=message_type), end="")
+                    print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(configure)")
 
                 # ignored
@@ -507,11 +561,11 @@ while True:
         amqp_message,
         retry=False
     )
-    if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
-        print("AMQP published ({})".format(message_type))
+    if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
+        print("AMQP published ({})".format(wsjtx_message_type))
         print(">>", amqp_message)
 
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
-    if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
+    if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
         print()
