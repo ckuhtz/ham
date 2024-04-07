@@ -478,7 +478,7 @@ while True:
     # publish message to AMQP
         
     amqp_producer.publish(
-        "hi!",
+        amqp_message,
         retry=False
     )
     if ( debug and ( debug_only_message_type == -1 or debug_only_message_type == message_type )):
