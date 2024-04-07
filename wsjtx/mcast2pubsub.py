@@ -379,7 +379,35 @@ while True:
                     print("rx_message:", rx_message)
                     print("low_conf:", low_conf)
                     print("off_air:", off_air)
-                    
+
+                amqp_message = {
+                    "wsjtx": {
+                        "type": wsjtx_message_type,
+                        "name": "decode",
+                        "id": wsjtx_id,
+                    },
+                    "ip": {
+                        "source": {
+                            "ip": addr[0],
+                            "port": addr[1]
+                        },
+                        "destination": {
+                            "ip": mcast_group,
+                            "port": mcast_port
+                        }
+                    },
+                    "decode": {
+                        "iso8601_timestamp": time,
+                        "mode": mode,
+                        "rx_message": rx_message,
+                        "snr": snr,
+                        "low_conf": low_conf,
+                        "delta_time": delta_time,
+                        "delta_freq": delta_freq,
+                        "off_air": off_air
+                    }
+                }
+
             case 3: 
                 # Either user has discarded prior decodes or the server is being instructed to discard decodes
                 # Out/In
