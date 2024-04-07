@@ -490,6 +490,55 @@ while True:
                     print("exch_rcvd:", exch_rcvd)
                     print("adif_prop_mode:", adif_prop_mode)
 
+                amqp_message = {
+                    "wsjtx": {
+                        "type": wsjtx_message_type,
+                        "name": "qso logged",
+                        "id": wsjtx_id,
+                    },
+                    "ip": {
+                        "source": {
+                            "ip": addr[0],
+                            "port": addr[1]
+                        },
+                        "destination": {
+                            "ip": mcast_group,
+                            "port": mcast_port
+                        }
+                    },
+                    "qso": {
+                        "tx_freq": tx_freq,
+                        "mode": mode,
+                        "tx_power": tx_power,
+                        "de": {
+                            "call": de_call,
+                            "grid": de_grid,
+                            "op": op_call
+                        },
+                        "dx": {
+                            "call": dx_call,
+                            "grid": dx_grid,
+                            "name": name
+                        },                        
+                        "report": {
+                            "sent": report_sent,
+                            "received": report_rcvd
+                        },
+                        "exchange": {
+                            "sent": exch_sent,
+                            "received": exch_rcvd
+                        },
+                        "timestamp": {
+                            "on": datetime_on,
+                            "off": datetime_off
+                        },
+                        "comments": comments,
+                        "adif": {
+                            "prop_mode": adif_prop_mode
+                        }
+                    }
+               }
+
             case 6:
                 # WSJT-X shutting down
                 
@@ -562,6 +611,27 @@ while True:
                     print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
                     print("(logged ADIF)")
                     print("adif:", adif)
+
+                amqp_message = {
+                    "wsjtx": {
+                        "type": wsjtx_message_type,
+                        "name": "logged adif",
+                        "id": wsjtx_id,
+                    },
+                    "ip": {
+                        "source": {
+                            "ip": addr[0],
+                            "port": addr[1]
+                        },
+                        "destination": {
+                            "ip": mcast_group,
+                            "port": mcast_port
+                        }
+                    },
+                    "adif": {
+                        "message": adif
+                    }
+                }
 
             case 13:
                 # Highlight call sign in WSJT-X
