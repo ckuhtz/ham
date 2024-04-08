@@ -22,10 +22,8 @@ from PySide6.QtCore import QByteArray, QDataStream, QIODevice
 from hexdump import hexdump
 import datetime
 import juliandate as jd
-#from kombu import Connection, Exchange, Producer
-import paho.mqtt import client as mqtt_client
 import json
-import random
+import redis
 
 # constants
 
@@ -35,22 +33,6 @@ debug_only_wsjtx_message_type = -1 # ignore specific message, all messages
 
 mcast_group = '224.0.0.1'
 mcast_port = 2237
-
-# MQTT client connection
-
-def connect_mqtt():
-    def on_connect(client, userdata, flags, rc, properties):
-        if (rc == 0 and debug):
-            print("MQTT connected.")
-        else:
-            print("MQTT connection failed, return code %d\n", rc)
-
-    client = mqtt_client.Client(client_id=mqtt_client_id,callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2)
-    client.username_pw_set(mqtt_username,mqtt_password)
-    client.on_connect = on_connect
-    client.connect(mqtt_broker,mqtt_port)
-    return client
-
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
 
@@ -110,38 +92,14 @@ def decode_qdatetime_iso8601str(stream):
     
     return iso8601_datetime
 
-# set up AMQP producer
-
-# FIXME
-# https://github.com/ckuhtz/ham/issues/5
+# create Redis client
 
 try:
-    amqp_connection = Connection(amqp_url)
-    if debug:
-        print("AMQP URL:", amqp_url)
-    amqp_channel = amqp_connection.channel()
-    amqp_exchange_name = "wsjtx"
-    amqp_exchange = Exchange(amqp_exchange_name, type='direct')
-    if debug:
-        print("AMQP exchange:", amqp_exchange_name)
-    amqp_routing_key = "wsjtx-out"
-    amqp_producer = Producer(
-        exchange=amqp_exchange,
-        channel=amqp_channel,
-        routing_key=amqp_routing_key
-    )
-    if debug:
-        print("AMQP routing key:", amqp_routing_key)
+    redis_client = redis.Redis(host="docker", port=6379)
 except Exception as e:
-    print("AMQP init problem:", str(e))
-
-if debug:
-    print("AMQP init done. (maybe? see https://github.com/ckuhtz/ham/issues/5)")
-    print()
+    print("Redis init problem:", str(e))
 
 # open multicast socket and join group 224.0.0.1:2237 where we expect WSJT-X UDP multicasts in QTDatastream format
-
-
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -151,12 +109,12 @@ mreq = socket.inet_aton(mcast_group) + socket.inet_aton("0.0.0.0")
 sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, mreq)
 
 while True:
-    # amqp_message is the object that is published to AMQP
+    # pubsub_message is the object that is published to AMQP
     # it is reset to undefined here, and every message type that does publish a producer
     # message will provide its own message.  If undefined type is published, we know we hit
     # an area of the code that should be evaluated for more work.
 
-    amqp_message = { 'type': 'undefined' }
+    pubsub_message = { 'type': 'undefined' }
 
     data, addr = sock.recvfrom(10240)
 
@@ -213,7 +171,7 @@ while True:
                     print("wsjtx_max_schema:", wsjtx_max_schema)
                     print ("wsjtx_version/revision: {wsjtx_version}/{wsjtx_revision}".format(wsjtx_version=wsjtx_version,wsjtx_revision=wsjtx_revision))
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "heartbeat",
@@ -314,7 +272,7 @@ while True:
                     print("config_name:", config_name)
                     print("tx_message:",tx_message)
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "status",
@@ -394,7 +352,7 @@ while True:
                     print("low_conf:", low_conf)
                     print("off_air:", off_air)
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "decode",
@@ -433,7 +391,7 @@ while True:
                     print("(clear)")
                     print("window:", window)
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "clear",
@@ -504,7 +462,7 @@ while True:
                     print("exch_rcvd:", exch_rcvd)
                     print("adif_prop_mode:", adif_prop_mode)
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "qso logged",
@@ -626,7 +584,7 @@ while True:
                     print("(logged ADIF)")
                     print("adif:", adif)
 
-                amqp_message = {
+                pubsub_message = {
                     "wsjtx": {
                         "type": wsjtx_message_type,
                         "name": "logged adif",
@@ -686,14 +644,14 @@ while True:
     except Exception as e:
         print("Error decoding WSJT-X data:", str(e))
         
-    # publish message to AMQP
-        
-    amqp_producer.publish(
-        amqp_message,
-        retry=False
+    # publish message to Redis pubsub
+    
+    redis_client.publish(
+        'wsjtx-out',
+        pubsub_message
     )
     if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
-        print("AMQP <<", amqp_message)
+        print("Redis pubsub <<", pubsub_message)
 
     # if we're debugging, lets make sure we print a blank line to break up the mess. ;-) 
 
