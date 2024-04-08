@@ -1,7 +1,6 @@
-# 1. receive multicast messages from WSJT-X
+# 1. receive multicast messages from WSJT-X (and anything that looks like it on the same group)
 # 2. decode messages from QTDatastream and map the fields
-# 3. ignore everything that isn't emitted by WSJT-X (although debug will show that
-#    it has been seen on the wire)
+# 
 #
 # format description:
 # https://sourceforge.net/p/wsjt/wsjtx/ci/master/tree/Network/NetworkMessage.hpp
@@ -119,6 +118,10 @@ while True:
         # if we got here, we know we have something that looks like the message we're expecting from WSJT-X
 
         message_type = stream.readUInt32()
+
+        # FIXME placeholder
+        # https://github.com/ckuhtz/ham/issues/3
+
         id = decode_utf8_str(stream)
         match message_type:
             case 0: 
@@ -130,6 +133,8 @@ while True:
                 revision = decode_utf8_str(stream)
 
                 if debug:
+                    print("id:", id)
+                    print("message_type: {message_type} ".format(message_type=message_type), end="")
                     print("(heartbeat)")
                     print("max_schema:", max_schema)
                     print ("version/revision: {version}/{revision}".format(version=version,revision=revision))
