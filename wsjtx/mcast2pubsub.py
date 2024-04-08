@@ -146,7 +146,7 @@ while True:
 
         if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
             print(hexdump(data))
-            print("source:",format(addr))
+            # print("source:",format(addr))
     
         # FIXME
         # https://github.com/ckuhtz/ham/issues/3
