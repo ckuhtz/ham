@@ -13,8 +13,6 @@
 # if using PyQt5, sudo apt install qtbase5-dev; pip install pyqt5
 # install hexdump with pip install simple-hexdump
 # install juliandate with pip install juliandate
-# install kombu for AMQP messaging
-# install librabbitmq for high perf transport (optional)
 
 import socket
 import struct
@@ -24,8 +22,10 @@ from PySide6.QtCore import QByteArray, QDataStream, QIODevice
 from hexdump import hexdump
 import datetime
 import juliandate as jd
-from kombu import Connection, Exchange, Producer
+#from kombu import Connection, Exchange, Producer
+import paho.mqtt import client as mqtt_client
 import json
+import random
 
 # constants
 
@@ -33,10 +33,24 @@ debug = True
 debug_only_wsjtx_message_type = -1 # ignore specific message, all messages
 #debug_only_wsjtx_message_type = 0 # specific message only, cut down on the noise
 
-amqp_url = "amqp://admin:admin@docker:5672/"
-
 mcast_group = '224.0.0.1'
 mcast_port = 2237
+
+# MQTT client connection
+
+def connect_mqtt():
+    def on_connect(client, userdata, flags, rc, properties):
+        if (rc == 0 and debug):
+            print("MQTT connected.")
+        else:
+            print("MQTT connection failed, return code %d\n", rc)
+
+    client = mqtt_client.Client(client_id=mqtt_client_id,callback_api_version=mqtt_client.CallbackAPIVersion.VERSION2)
+    client.username_pw_set(mqtt_username,mqtt_password)
+    client.on_connect = on_connect
+    client.connect(mqtt_broker,mqtt_port)
+    return client
+
 
 # decode the UTF-8 strings embedded in the QDatastream of WSJT-X UDP messages
 
