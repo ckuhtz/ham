@@ -160,6 +160,7 @@ while True:
                 # Heartbeat message from WSJT-X (discovery and schema negotiation)
                 # It appears schema negotation is optional?
                 # Out/In
+
                 wsjtx_max_schema = stream.readUInt32()
                 wsjtx_version = decode_utf8_str(stream)
                 wsjtx_revision = decode_utf8_str(stream)
@@ -195,6 +196,7 @@ while True:
             case 1: 
                 # Status update from WSJT-X
                 # Out
+
                 dial_freq = stream.readUInt64()
                 mode = decode_utf8_str(stream)
                 dx_call = decode_utf8_str(stream)
@@ -217,6 +219,28 @@ while True:
                 config_name = decode_utf8_str(stream)
                 tx_message = decode_utf8_str(stream)
 
+                match spec_op_mode:
+                    case 0:
+                        spec_op_mode_name = "none"
+                    case 1:
+                        spec_op_mode_name = "NA VHF"
+                    case 2:
+                        spec_op_mode_name = "EU VHF"
+                    case 3:
+                        spec_op_mode_name = "FIELD DAY"
+                    case 4:
+                        spec_op_mode_name = "RTTY RU"
+                    case 5:
+                        spec_op_mode_name = "WW DIGI"
+                    case 6:
+                        spec_op_mode_name = "FOX"
+                    case 7:
+                        spec_op_mode_name = "HOUND"
+                    case 8:
+                        spec_op_mode_name = "ARRL DIGI"
+                    case _:
+                        spec_op_mode_name = "wtf?"
+
                 # if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
                 #     print("wsjtx_id:", wsjtx_id)
                 #     print("wsjtx_message_type: {wsjtx_message_type} ".format(wsjtx_message_type=wsjtx_message_type), end="")
@@ -238,27 +262,6 @@ while True:
                 #     print("sub_mode:", sub_mode)
                 #     print("fast_mode:", fast_mode)
                 #     print("spec_op_mode: {} ".format(spec_op_mode), end="")
-                #     match spec_op_mode:
-                #         case 0:
-                #             spec_op_mode_name = "none"
-                #         case 1:
-                #             spec_op_mode_name = "NA VHF"
-                #         case 2:
-                #             spec_op_mode_name = "EU VHF"
-                #         case 3:
-                #             spec_op_mode_name = "FIELD DAY"
-                #         case 4:
-                #             spec_op_mode_name = "RTTY RU"
-                #         case 5:
-                #             spec_op_mode_name = "WW DIGI"
-                #         case 6:
-                #             spec_op_mode_name = "FOX"
-                #         case 7:
-                #             spec_op_mode_name = "HOUND"
-                #         case 8:
-                #             spec_op_mode_name = "ARRL DIGI"
-                #         case _:
-                #             spec_op_mode_name = "wtf?"
                 #     print("(" + spec_op_mode_name + ")")
                 #     print("freq_tolerance:", freq_tolerance, end="")
                 #     if freq_tolerance == 4294967295:
@@ -329,6 +332,7 @@ while True:
             case 2: 
                 # WSJT-X has decoded a message
                 # Out
+
                 new = stream.readBool()
                 time = decode_qtime_iso8601str(stream)
                 snr = stream.readInt32()
@@ -384,6 +388,7 @@ while True:
             case 3: 
                 # Either user has discarded prior decodes or the server is being instructed to discard decodes
                 # Out/In
+
                 window = stream.readUInt8()
 
                 # if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
@@ -411,7 +416,7 @@ while True:
                     "window": window
                }
 
-            case 4: 
+            # case 4: 
                 # Inbound control message to WSJT-X only
                 # In
 
@@ -422,7 +427,10 @@ while True:
 
                 # ignored
 
-            case 5: # QSO logged
+            case 5: 
+                # QSO logged
+                # Out
+
                 datetime_off = decode_qdatetime_iso8601str(stream)
                 dx_call = decode_utf8_str(stream)
                 dx_grid = decode_utf8_str(stream)
@@ -539,7 +547,7 @@ while True:
                     }
                 }
 
-            case 7:
+            # case 7:
                 # Replay previous band decodes from WSJT-X
                 # In
 
@@ -550,7 +558,7 @@ while True:
 
                 # ignored
 
-            case 8:
+            # case 8:
                 # Halt transmissions in WSJT-X
                 # In
 
@@ -561,7 +569,7 @@ while True:
                 
                 # ignored
 
-            case 9:
+            # case 9:
                 # Set free text message in WSJT-X
                 # In
 
@@ -572,7 +580,7 @@ while True:
                 
                 # ignored
                     
-            case 10:
+            # case 10:
                 # WSPR decode receive from WSJT-X
                 # Out
                 
@@ -583,7 +591,7 @@ while True:
                 
                 # ignored
 
-            case 11:
+            # case 11:
                 # Location update for WSJT-X
                 # In
                 
@@ -627,7 +635,7 @@ while True:
                     }
                 }
 
-            case 13:
+            # case 13:
                 # Highlight call sign in WSJT-X
                 # In
                 
@@ -638,7 +646,7 @@ while True:
                 
                 # ignored
 
-            case 14:
+            # case 14:
                 # Switch WSJT-X configuration
                 # In
 
@@ -649,7 +657,7 @@ while True:
                 
                 # ignored
 
-            case 15:
+            # case 15:
                 # Configure WSJT-X
                 # In
 
