@@ -648,7 +648,7 @@ while True:
     
     redis_client.publish(
         'wsjtx-out',
-        pubsub_message
+        json.dumps(pubsub_message)
     )
     if ( debug and ( debug_only_wsjtx_message_type == -1 or debug_only_wsjtx_message_type == wsjtx_message_type )):
         print("Redis pubsub <<", pubsub_message)
