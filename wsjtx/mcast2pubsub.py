@@ -325,7 +325,8 @@ while True:
                         "tx_enabled": tx_enabled,
                         "transmitting": transmitting,
                         "decoding": decoding,
-                        "tx_watchdog": tx_watchdog
+                        "tx_watchdog": tx_watchdog,
+                        "tx_message": tx_message
                     }
                 }
 
