@@ -326,7 +326,7 @@ while True:
                         "transmitting": transmitting,
                         "decoding": decoding,
                         "tx_watchdog": tx_watchdog,
-                        "tx_message": tx_message
+                        "tx_message": tx_message.rstrip()
                     }
                 }
 
