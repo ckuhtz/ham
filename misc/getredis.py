@@ -1,8 +1,8 @@
 import redis
 import time
 
-#redis_channel = 'pskreporter'
-redis_channel = 'periodic'
+redis_channel = 'pskreporter'
+#redis_channel = 'periodic'
 
 redis_host = "docker"
 redis_port = "6379"
