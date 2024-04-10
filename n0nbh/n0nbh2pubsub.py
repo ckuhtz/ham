@@ -79,7 +79,6 @@ while True:
     except Exception as e:
         print("Redis publish():", str(e))
 
-
     # wait for 1 hour s we don't trip the rate limiting for n0nbh
 
     if debug:
