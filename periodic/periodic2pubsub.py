@@ -11,7 +11,7 @@ try:
 except Exception as e:
     print("Redis init problem:", str(e))
 
-periodic_message = {
+pubsub_message = {
     "type": "minute"
 }
 
