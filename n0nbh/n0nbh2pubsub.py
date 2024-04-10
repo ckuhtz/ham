@@ -1,5 +1,5 @@
-# retrieve information from pskreporter.info
-# https://www.pskreporter.info/pskdev.html
+# retrieve information from n0nbh
+# https://www.hamqsl.com/solarrss.php
 # 1. retrieve xml
 # 2. convert to dict
 # 3. convert to json
@@ -55,11 +55,6 @@ except Exception as e:
 
 while True:
 
-    # wait for 1 hour s we don't trip the rate limiting for n0nbh
-
-    if debug:
-        print("waiting for 1 hour..")
-    wait_for_periodic(redis_client, "minute", 60)
 
     # retrieve n0nbh data as XML string
 
@@ -84,3 +79,10 @@ while True:
             print("Redis pubsub <<", pubsub_message)
     except Exception as e:
         print("Redis publish():", str(e))
+
+
+    # wait for 1 hour s we don't trip the rate limiting for n0nbh
+
+    if debug:
+        print("waiting for 1 hour..")
+    wait_for_periodic(redis_client, "minute", 60)
