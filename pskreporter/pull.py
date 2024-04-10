@@ -4,18 +4,46 @@
 # 2. convert to dict
 # 3. convert to json
 # 4. publish on redis pubsub
+#
+# pip install xmtodict
+# pip install requests
 
 import json
 import xmltodict
+import requests
+import redis
 
-# Parse the XML file
-with open('yourfile.xml', 'r') as file:
-    xml_string = file.read()
 
-# Convert the XML string to a Python dictionary
-data_dict = xmltodict.parse(xml_string)
+callsign = "AK7VV"
+pskreporter_url = "https://retrieve.pskreporter.info/query?senderCallsign=" + callsign
+redis_host = "docker"
+redis_port = "6379"
 
-# Convert the Python dictionary to a JSON string
-json_data = json.dumps(data_dict)
+# create Redis client
 
-print(json_data)
+try:
+    redis_client = redis.Redis(host=redis_host, port=redis_port)
+except Exception as e:
+    print("Redis init problem:", str(e))
+
+while True:
+
+    # retrieve PSK reporter data for callsign as XML string
+
+    response = requests.get(pskreporter_url)
+    xml_string = response.text
+
+    # Convert the XML string to a Python dictionary
+    data_dict = xmltodict.parse(xml_string,attr_prefix='')
+
+    pubsub_message = json.dumps(data_dict)
+
+    # publish to Redis pubsub
+
+    try:
+        redis_client.publish(
+            'periodic',
+            json.dumps(pubsub_message)
+        )
+    except Exception as e:
+        print("Redis publish():", str(e))

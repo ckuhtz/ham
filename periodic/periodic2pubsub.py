@@ -4,10 +4,13 @@ import json
 import redis
 import time
 
+redis_host = "docker"
+redis_port = "6379"
+
 # create Redis client
 
 try:
-    redis_client = redis.Redis(host="docker", port=6379)
+    redis_client = redis.Redis(host=redis_host, port=redis_port)
 except Exception as e:
     print("Redis init problem:", str(e))
 
