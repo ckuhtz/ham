@@ -24,4 +24,4 @@ while True:
     except Exception as e:
         print("Redis publish():", str(e))
 
-    time.sleep(60)
+    time.sleep(60) # 1 minute of nothingness
