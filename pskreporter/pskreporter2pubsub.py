@@ -66,7 +66,7 @@ while True:
     # retrieve PSK reporter data for callsign as XML string
 
     if debug:
-        print("getting PSKreporter data.")
+        print("getting PSKreporter data:", pskreporter_url)
     response = requests.get(pskreporter_url)
     xml_string = response.text
 
