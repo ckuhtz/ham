@@ -55,7 +55,6 @@ except Exception as e:
 
 while True:
 
-
     # retrieve n0nbh data as XML string
 
     if debug:
