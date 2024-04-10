@@ -22,7 +22,7 @@ while True:
     try:
         redis_client.publish(
             'periodic',
-            json.dumps(pubsub_message)
+            json.dumps(pubsub_message,pretty=True)
         )
     except Exception as e:
         print("Redis publish():", str(e))

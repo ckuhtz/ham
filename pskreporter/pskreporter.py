@@ -16,8 +16,8 @@ import time
 
 
 pskreporter_callsign = "AK7VV"
-pskreporter_timewindow = 5 * 60
-pskreporter_url = "https://retrieve.pskreporter.info/query?senderCallsign=" + pskreporter_callsign + "?flowStartSeconds=-" + str(pskreporter_timewindow)
+#pskreporter_timewindow = 5 * 60
+pskreporter_url = "https://retrieve.pskreporter.info/query?senderCallsign=" + pskreporter_callsign
 debug = True
 
 # retrieve PSK reporter data for callsign as XML string
