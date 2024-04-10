@@ -40,7 +40,7 @@ def wait_for_periodic(r, message_value, count):
         if debug:
             print(f"Received '{message_to_wait_for}' for {message_count} out of {count} times.")
         if message_count < count:
-            time.sleep(30) # wait 30 seconds before checking again
+            time.sleep(31) # wait 31 seconds before checking again
 
     if debug:
         print ("wait is over.")
