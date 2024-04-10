@@ -18,6 +18,7 @@ import time
 n0nbh_url = "https://www.hamqsl.com/solarrss.php"
 redis_host = "docker"
 redis_port = "6379"
+redis_channel = "n0nbh"
 debug = True
 
 # wait for periodic message
@@ -58,8 +59,8 @@ while True:
     # retrieve n0nbh data as XML string
 
     if debug:
-        print("getting PSKreporter data:", pskreporter_url)
-    response = requests.get(pskreporter_url)
+        print("getting PSKreporter data:", n0nbh_url)
+    response = requests.get(n0nbh_url)
     xml_string = response.text
 
     # Convert the XML string to a Python dictionary
@@ -71,8 +72,8 @@ while True:
 
     try:
         redis_client.publish(
-            'n0nbh',
-            json.dumps(pubsub_message)
+            channel=redis_channel,
+            message=json.dumps(pubsub_message)
         )
         if debug:
             print("Redis pubsub <<", pubsub_message)
