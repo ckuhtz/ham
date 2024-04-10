@@ -20,6 +20,7 @@ pskreporter_callsign = "AK7VV"
 pskreporter_url = "https://retrieve.pskreporter.info/query?senderCallsign=" + pskreporter_callsign
 redis_host = "docker"
 redis_port = "6379"
+redis_channel = "pskreporter"
 debug = True
 
 # wait for periodic message
@@ -79,8 +80,8 @@ while True:
 
     try:
         redis_client.publish(
-            'pskreporter',
-            json.dumps(pubsub_message)
+            channel=redis_channel,
+            message=json.dumps(pubsub_message)
         )
         if debug:
             print("Redis pubsub <<", pubsub_message)
