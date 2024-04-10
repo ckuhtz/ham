@@ -1,5 +1,5 @@
-# retrieve information from pskreporter.info
-# https://www.pskreporter.info/pskdev.html
+# retrieve information from n0nbh
+# https://www.hamqsl.com/solarrss.php
 # 1. retrieve xml
 # 2. convert to dict
 # 3. convert to json
@@ -15,12 +15,10 @@ import redis
 import time
 
 
-pskreporter_callsign = "AK7VV"
-#pskreporter_timewindow = 5 * 60
-pskreporter_url = "https://retrieve.pskreporter.info/query?senderCallsign=" + pskreporter_callsign
+n0nbh_url = "https://www.hamqsl.com/solarrss.php"
 redis_host = "docker"
 redis_port = "6379"
-redis_channel = "pskreporter"
+redis_channel = "n0nbh"
 debug = True
 
 # wait for periodic message
@@ -58,23 +56,17 @@ except Exception as e:
 
 while True:
 
-    # wait for 5 minutes so we don't trip the rate limiting for PSKreporter
+    # retrieve n0nbh data as XML string
 
     if debug:
-        print("waiting for 5 minutes..")
-    wait_for_periodic(redis_client, "minute", 5)
-
-    # retrieve PSK reporter data for callsign as XML string
-
-    if debug:
-        print("getting PSKreporter data:", pskreporter_url)
-    response = requests.get(pskreporter_url)
+        print("getting PSKreporter data:", n0nbh_url)
+    response = requests.get(n0nbh_url)
     xml_string = response.text
 
     # Convert the XML string to a Python dictionary
     data_dict = xmltodict.parse(xml_string,attr_prefix='')
 
-    pubsub_message = json.dumps(data_dict)
+    pubsub_message = json.dumps(data_dict["rss"]["channel"]["item"]["solar"])
 
     # publish to Redis pubsub
 
@@ -87,3 +79,9 @@ while True:
             print("Redis pubsub <<", pubsub_message)
     except Exception as e:
         print("Redis publish():", str(e))
+
+    # wait for 1 hour s we don't trip the rate limiting for n0nbh
+
+    if debug:
+        print("waiting for 1 hour..")
+    wait_for_periodic(redis_client, "minute", 60)
