@@ -16,9 +16,12 @@ pubsub_message = {
 }
 
 while True:
-    redis_client.publish(
-        'periodic',
-        json.dumps(pubsub_message)
-    )
+    try:
+        redis_client.publish(
+            'periodic',
+            json.dumps(pubsub_message)
+        )
+    except Exception as e:
+        print("Redis publish():", str(e))
 
     time.sleep(60)
