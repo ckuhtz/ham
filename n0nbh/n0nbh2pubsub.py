@@ -66,7 +66,7 @@ while True:
     # Convert the XML string to a Python dictionary
     data_dict = xmltodict.parse(xml_string,attr_prefix='')
 
-    pubsub_message = json.dumps(data_dict)
+    pubsub_message = json.dumps(data_dict["rss"]["channel"]["item"]["solar"])
 
     # publish to Redis pubsub
 
