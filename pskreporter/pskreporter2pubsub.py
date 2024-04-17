@@ -72,7 +72,11 @@ while True:
     xml_string = response.text
 
     # Convert the XML string to a Python dictionary
-    data_dict = xmltodict.parse(xml_string,attr_prefix='')
+    try:
+        data_dict = xmltodict.parse(xml_string,attr_prefix='')
+    except Exception as e:
+        print("dict to XML data problem:", str(e))
+        print("dict:", data_dict)
 
     pubsub_message = json.dumps(data_dict)
 
