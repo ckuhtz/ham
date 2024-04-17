@@ -70,13 +70,14 @@ while True:
         print("getting PSKreporter data:", pskreporter_url)
     response = requests.get(pskreporter_url)
     xml_string = response.text
+    if debug:
+        print("xml_string:", xml_string)
 
     # Convert the XML string to a Python dictionary
     try:
         data_dict = xmltodict.parse(xml_string,attr_prefix='')
     except Exception as e:
-        print("dict to XML data problem:", str(e))
-        print("dict:", data_dict)
+        print("XML data problem:", str(e))
 
     pubsub_message = json.dumps(data_dict)
 
